@@ -1,0 +1,116 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "annotations": {
+        "name": "POD_NAME",
+        "namespace": "NAMESPACE"
+    },
+    "labels": {
+      "appgroup": "",
+      "version": "v1"
+    },
+    "name": "POD_NAME",
+    "namespace": "default"
+  },
+  "spec": {
+    "selector": {
+      "matchLabels": {
+        "app": "POD_NAME",
+        "version": "v1"
+      }
+    },
+    "template": {
+      "metadata": {
+        "annotations": {
+          "metrics.alpha.kubernetes.io/custom-endpoints": "[{\"api\":\"\",\"path\":\"\",\"port\":\"\",\"names\":\"\"}]"
+        },
+        "labels": {
+          "app": "POD_NAME",
+          "version": "v1",
+          "label-sg": "key-sg"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "POD_IMAGE",
+            "name": "container-0",
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              }
+            },
+            "env": [
+              {
+                "name": "PAAS_APP_NAME",
+                "value": "POD_NAME"
+              },
+              {
+                "name": "PAAS_NAMESPACE",
+                "value": "NAMESPACE"
+              }
+            ],
+            "command": [
+              "/bin/bash"
+            ],
+            "args": [
+              "-c",
+              "sed -i 's/listen.*;/listen       80 reuseport;/g' /etc/nginx/conf.d/default.conf;sed -i 's/worker_connections.*;/worker_connections  65535;/g' /etc/nginx/nginx.conf; sed -i 's/worker_processes.*;/worker_processes  8;/g' /etc/nginx/nginx.conf; sed -i 's/access_log.*/access_log off;/g' /etc/nginx/nginx.conf; nginx -g 'daemon off;'"
+            ],
+            "volumeMounts": []
+          }
+        ],
+        "imagePullSecrets": [
+          {
+            "name": "default-secret"
+          }
+        ],
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "dnsConfig": {
+          "nameservers": [],
+          "options": [
+            {
+              "name": "timeout",
+              "value": ""
+            },
+            {
+              "name": "ndots",
+              "value": "5"
+            },
+            {
+              "name": "single-request-reopen"
+            }
+          ],
+          "searches": []
+        },
+        "affinity": {},
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ]
+      }
+    },
+    "replicas": "POD_NUM",
+    "minReadySeconds": 0,
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxSurge": 0,
+        "maxUnavailable": 1
+      }
+    }
+  }
+}

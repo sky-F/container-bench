@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy-NUMS
+  namespace: NAMESPACE
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: test-deploy-NUMS
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      annotations:
+        metrics.alpha.kubernetes.io/custom-endpoints: "[{api:'',path:'',port:'',names:''}]"
+      labels:
+        app: test-deploy-NUMS
+    spec:
+      containers:
+      - env:
+        - name: PAAS_APP_NAME
+          value: test-deploy-NUMS
+        image: IMAGE
+        imagePullPolicy: Always
+        name: container-0
+        resources:
+          requests:
+            cpu: '0.1'
+            memory: 0.1Gi
+        volumeMounts:
+        - mountPath: "/tmp/pvc-evs"
+          name: pvc-evs
+      imagePullSecrets:
+      - name: default-secret
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: pvc-evs
+        persistentVolumeClaim:
+          claimName: pvcevs-NUMS
+

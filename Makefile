@@ -337,6 +337,9 @@ oss:
 20evs: ## create 20 evs pvc
 	bash $(current_dir)/script/benchmark-create-evs.sh --deploy-num 20 --name perf-test --namespace $(namespace) --pod-template $(current_dir)/pvc-template/$(evs).json 
 
+numevs: ## create num evs pvc    make numevs.pvc-template.pvc-name.pvc-num
+	bash $(current_dir)script/benchmark-create-evs.sh --namespace $(namespace) --pod-template $(current_dir)/pvc-template/$(word 2, $(subst ., ,$@)).json --name $(word 3, $(subst ., ,$@)) --pvc-num $(word 4, $(subst ., ,$@)) |tee logs/$@.txt 
+
 40evs: ## create 40 evs pvc
 	bash $(current_dir)/script/benchmark-create-evs.sh --deploy-num 40 --name perf-test --namespace $(namespace) --pod-template $(current_dir)/pvc-template/$(evs).json 
 

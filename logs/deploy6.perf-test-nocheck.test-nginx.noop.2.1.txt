@@ -1,0 +1,13 @@
+PASSWORD=0d0f1d7b57c7a982778e65d7b09c59
+Test start:              2021-08-11 19:09:12.469271216
+deployment.apps/test-nginx-2 created
+deployment.apps/test-nginx-1 created
+All pods created:        2021-08-11 19:09:12.800257554
+All pods scheduled:       2021-08-11 19:09:12.907675743
+First 1(1) Pod Running:            2021-08-11 19:09:14.929898217
+Final 1(1) Pod Running:            2021-08-11 19:09:14.930704551
+First 2(2) Pod Running:            2021-08-11 19:09:15.963323229
+Final 0(2) Pod Running:            2021-08-11 19:09:15.964114994
+All pods Running:       2021-08-11 19:09:15.964886425
+All pods Completed:        2021-08-11 19:09:15.965616184
+Test finished:           2021-08-11 19:09:15.966356559

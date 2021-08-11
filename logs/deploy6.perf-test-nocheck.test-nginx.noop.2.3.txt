@@ -1,0 +1,9 @@
+PASSWORD=b17242150ce762bf6ab32fa1a84275
+Test start:              2021-08-11 17:15:57.259125566
+All pods created:        2021-08-11 17:15:57.340545974
+All pods scheduled:       2021-08-11 17:15:57.343656677
+First 1(6) Pod Running:            2021-08-11 17:15:57.346191205
+Final 4(6) Pod Running:            2021-08-11 17:15:57.347032928
+All pods Running:       2021-08-11 17:15:57.347850255
+All pods Completed:        2021-08-11 17:15:57.348602647
+Test finished:           2021-08-11 17:15:57.349341186
