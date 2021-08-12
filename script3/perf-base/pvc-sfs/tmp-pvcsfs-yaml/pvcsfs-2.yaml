@@ -1,0 +1,19 @@
+{
+    "apiVersion": "v1",
+    "kind": "PersistentVolumeClaim",
+    "metadata": {
+        "name": "pvcsfs-2",
+        "namespace": "default"
+    },
+    "spec": {
+        "accessModes": [
+            "ReadWriteMany"
+        ],
+        "resources": {
+            "requests": {
+                "storage": "1Gi"
+            }
+        },
+        "storageClassName": "csi-nas"
+    }
+}

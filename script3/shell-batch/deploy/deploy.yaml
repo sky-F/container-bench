@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    description: ''
+  labels:
+    appgroup: ''
+    version: v1
+  name: test-deploy-NUMS
+  namespace: NAMESPACE
+spec:
+  selector:
+    matchLabels:
+      app: test-deploy-NUMS
+      version: v1
+  template:
+    metadata:
+      annotations:
+        metrics.alpha.kubernetes.io/custom-endpoints: '[{"api":"","path":"","port":"","names":""}]'
+      labels:
+        app: test-deploy-NUMS
+        version: v1
+    spec:
+      containers:
+        - image: IMAGE
+          name: container-0
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+          env:
+            - name: PAAS_APP_NAME
+              value: test-deploy-NUMS
+          volumeMounts:
+            - name: configmap
+              mountPath: /root/test-configmap-NUMS
+              readOnly: true
+              subPath: ''
+            - name: secret
+              mountPath: /root/test-secret-NUMS
+              readOnly: true
+              subPath: ''
+      imagePullSecrets:
+        - name: default-secret
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        nameservers: []
+        options:
+          - name: timeout
+            value: ''
+          - name: ndots
+            value: '5'
+          - name: single-request-reopen
+        searches: []
+      volumes:
+        - configMap:
+            name: test-configmap-NUMS
+            items:
+              - key: key-NUMS
+                path: key-NUMS
+          name: configmap
+        - secret:
+            secretName: test-secret-NUMS
+            items:
+              - key: test
+                path: test
+          name: secret
+      affinity: {}
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+  replicas: 1
+  minReadySeconds: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1

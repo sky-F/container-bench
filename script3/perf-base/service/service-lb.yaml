@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-NUMS
+  labels:
+    app: DEPLOY-NAME-NUMS
+  namespace: default
+  annotations:
+    kubernetes.io/elb.class: union
+    kubernetes.io/elb.id: 83ed8ac8-f694-4f08-b9e8-47b40ee609a5
+    kubernetes.io/elb.lb-algorithm: ROUND_ROBIN
+    kubernetes.io/elb.health-check-flag: 'on'
+    kubernetes.io/elb.health-check-option: '{"protocol":"TCP","delay":"5","timeout":"10","max_retries":"3"}'
+spec:
+  selector:
+    app: DEPLOY-NAME-NUMS
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: cce-service-NUMS
+      targetPort: 80
+      nodePort: 0
+      port: PORTS
+      protocol: TCP
+  type: LoadBalancer
+  loadBalancerIP: ''
+
