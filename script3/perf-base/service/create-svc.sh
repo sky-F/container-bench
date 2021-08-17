@@ -1,7 +1,9 @@
 #!/bin/bash
-###usage:bash create-service.sh deploy nums
+###usage:bash create-service.sh deploy nums namespace
 ###deploy:需要绑定的负载名称前缀
 ###nums:需要创建deploy的数量
+###namespace:需要部署所在的namespace
+
 help(){
   sed -rn 's/^### ?//;T;p;' "$0"
 }
@@ -12,9 +14,9 @@ fi
 
 
 TMP_FILE=./tmp-service-yaml
-NAMESPACE=default
 deploy=$1
 nums=$2
+NAMESPACE=$3
 
 #循环构造service的yaml文件
 function gen_service_yaml(){

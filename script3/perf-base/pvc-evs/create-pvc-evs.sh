@@ -1,6 +1,7 @@
 #!/bin/bash
-###usage:bash create-pvc-evs.sh nums
+###usage:bash create-pvc-evs.sh nums namespace
 ###nums:需要创建pvcevs的数量
+###namespace:需要部署所在的namesapce
 
 help(){
   sed -rn 's/^### ?//;T;p;' "$0"
@@ -11,9 +12,9 @@ if [[ $# == 0 ]] || [[ "$1" == "-h" ]];then
 fi
 
 BASENAME="pvcevs"
-NAMESPACE="default"
 TMP_FILE=./tmp-pvcevs-yaml
 nums=$1
+NAMESPACE=$2
 
 #循环构造ns的yaml文件
 function gen_pvc_yaml(){

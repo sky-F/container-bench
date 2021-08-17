@@ -1,7 +1,8 @@
 #!/bin/bash
-###usage:bash create-deploy.sh deploynums podnums
+###usage:bash create-deploy.sh deploynums podnums namespace
 ###deploynums:需要创建deploy的数量
 ###podnums:每个deploy的副本数量
+###namespace：：deploy部署所在的namespace
 
 help(){
   sed -rn 's/^### ?//;T;p;' "$0"
@@ -13,7 +14,7 @@ fi
 
 
 TMP_FILE=./tmp-deploy-yaml
-NAMESPACE=default
+NAMESPACE=$3
 IMAGE=swr.cn-south-1.myhuaweicloud.com/fxq/perf-nginx:v10.1
 deploynums=$1
 podnums=$2

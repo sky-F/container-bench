@@ -1,9 +1,10 @@
 #!/bin/bash
-#usage:bash create-secret.sh nums
+#usage:bash create-secret.sh nums namespace
 #nums:需要创建secret的数量
+###namespace:部署所在的namespace
 
 TMP_FILE=./tmp-secret-yaml
-NAMESPACE=default
+NAMESPACE=$2
 nums=$1
 
 #循环构造secret的yaml文件
@@ -37,6 +38,6 @@ echo "`date  +%Y-%m-%d' '%H:%M:%S.%N` all secret ($nums) created ok!"
 mkdir -p $TMP_FILE
 gen_secret_yaml
 echo "`date +%Y-%m-%d' '%H:%M:%S.%N` begin to create secret"
-kubectl apply -f $TMP_FILE > /dev/null
+kubectl apply -f $TMP_FILE > /dev/null &
 check_secret_created
 

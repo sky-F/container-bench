@@ -1,7 +1,6 @@
 #!/bin/bash
-###usage:bash create-pvc-sfs.sh nums namespace
-###nums:需要创建pvcsfs的数量
-###namespace:需要部署所在的namespace
+###usage:bash create-ns.sh nums
+###nums:需要创建namespace的数量
 
 help(){
   sed -rn 's/^### ?//;T;p;' "$0"
@@ -11,35 +10,33 @@ if [[ $# == 0 ]] || [[ "$1" == "-h" ]];then
   exit 1
 fi
 
-BASENAME="pvcsfs"
-TMP_FILE=./tmp-pvcsfs-yaml
+BASENAME="test-ns"
+TMP_FILE=./tmp-namespace-yaml
 nums=$1
-NAMESPACE=$2
 
 #循环构造ns的yaml文件
-function gen_pvc_yaml(){
+function gen_ns_yaml(){
   for i in `seq 1 $nums`
     do 
-      \cp -x  pvcsfs-template.yaml $TMP_FILE/pvcsfs-$i.yaml
-      new_file=$TMP_FILE/pvcsfs-$i.yaml
-      sed -i s/PVC_EVS_NAME/${BASENAME}-$i/g $new_file
-      sed -i s/NAMESPACE/${NAMESPACE}/g $new_file
+      \cp -x  namespace-template.yaml $TMP_FILE/namespace-$i.yaml
+      new_file=$TMP_FILE/namespace-$i.yaml
+      sed -i s/NS-NAME/${BASENAME}-$i/g $new_file
     done
 }
 
 #判断cm是否创建完成
-function check_pvc_created(){
+function check_ns_created(){
   while true
-    created=`kubectl get pvc  | grep ${BASENAME} | grep Bound| wc -l`
+    created=`kubectl get ns  | grep ${BASENAME} | wc -l`
     do
       if [ $created != $nums ];then
-        echo "`date +%Y-%m-%d' '%H:%M:%S.%N` ${created} pvcevs is created!"
+        echo "`date +%Y-%m-%d' '%H:%M:%S.%N` ${created} namespace is created!"
         sleep 0.1
       else
         break
       fi
     done
-echo "`date  +%Y-%m-%d' '%H:%M:%S.%N` all pvcevs ($nums) created ok!"
+echo "`date  +%Y-%m-%d' '%H:%M:%S.%N` all namespace ($nums) created ok!"
 }
 
 #计算时间差（毫秒）
@@ -55,11 +52,11 @@ function get_time_ms(){
 
 #main函数
 mkdir -p $TMP_FILE
-gen_pvc_yaml
+gen_ns_yaml
 start_time=`date +%s.%N`
-echo "`date +%Y-%m-%d' '%H:%M:%S.%N` begin to create pvcevs"
-kubectl apply -f $TMP_FILE > /dev/null 
-check_pvc_created
+echo "`date +%Y-%m-%d' '%H:%M:%S.%N` begin to create namesapce"
+kubectl apply -f $TMP_FILE > /dev/null &
+check_ns_created
 end_time=`date +%s.%N`
 get_time_ms $start_time $end_time
 echo "total_time is $total_time ms"
