@@ -1,0 +1,157 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: hollow-node
+  namespace: kubemark
+  selfLink: /apis/apps/v1/namespaces/kubemark/deployments/hollow-node
+  labels:
+    name: hollow-node
+  annotations:
+    {}
+spec:
+  replicas: 768
+  selector:
+    matchLabels:
+      name: hollow-node
+  template:
+    metadata:
+      labels:
+        name: hollow-node
+    spec:
+      volumes:
+        - name: hollow-configmap
+          configMap:
+            name: kubemark-configmap
+            defaultMode: 420
+        - name: logfile
+          hostPath:
+            path: /var/paas/sys/log/kubemark/
+            type: ''
+        - name: paas-crypto-path
+          hostPath:
+            path: /var/paas/srv/kubernetes/
+            type: ''
+        - name: pki
+          hostPath:
+            path: /opt/cloud/cce/kubernetes/kubelet/pki/
+            type: ''
+      containers:
+        - name: hollow-kubelet
+          image: 'swr.cn-north-4.myhuaweicloud.com/perf/kubemark-x86-1.15:v2'
+          command:
+            - /bin/sh
+          args:
+            - '-c'
+            - /kubemark --morph=kubelet --name=$(NODE_NAME) --kubeconfig=/kubeconfig/kubelet.kubeconfig/kubeconfig $(CONTENT_TYPE) --alsologtostderr --v=2 1>>/var/log/kubemark/kubelet.log 2>&1;while true; do echo hello; sleep 10; done
+          ports:
+            - containerPort: 4194
+              protocol: TCP
+            - containerPort: 10250
+              protocol: TCP
+            - containerPort: 10255
+              protocol: TCP
+          env:
+            - name: PAAS_CRYPTO_PATH
+              value: /var/paas/srv/kubernetes/
+            - name: CONTENT_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: node-configmap
+                  key: content.type
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          resources: {}
+          volumeMounts:
+            - name: pki
+              mountPath: /opt/cloud/cce/kubernetes/kubelet/pki/
+            - name: hollow-configmap
+              mountPath: /kubeconfig/kubeproxy.kubeconfig
+            - name: hollow-configmap
+              mountPath: /kubeconfig/kubelet.kubeconfig
+            - name: paas-crypto-path
+              mountPath: /var/paas/srv/kubernetes/
+            - name: logfile
+              mountPath: /var/log/kubemark
+              policy:
+                logs:
+                  rotate: Daily
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+        - name: hollow-proxy
+          image: 'swr.cn-north-4.myhuaweicloud.com/perf/kubemark-x86-1.15:v2'
+          command:
+            - /bin/sh
+          args:
+            - '-c'
+            - /kubemark --morph=proxy --name=$(NODE_NAME) --kubeconfig=/kubeconfig/kubeproxy.kubeconfig/kubeconfig $(CONTENT_TYPE) --alsologtostderr --v=2 1>>/var/log/kubemark/kube-proxy.log 2>&1;while true; do echo hello; sleep 10; done
+          env:
+            - name: PAAS_CRYPTO_PATH
+              value: /var/paas/srv/kubernetes/
+            - name: CONTENT_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: node-configmap
+                  key: content.type
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          resources: {}
+          volumeMounts:
+            - name: paas-crypto-path
+              mountPath: /var/paas/srv/kubernetes/
+            - name: hollow-configmap
+              mountPath: /kubeconfig/kubelet.kubeconfig
+            - name: logfile
+              mountPath: /var/log/kubemark
+              policy:
+                logs:
+                  rotate: Daily
+            - name: pki
+              mountPath: /opt/cloud/cce/kubernetes/kubelet/pki/
+            - name: hollow-configmap
+              mountPath: /kubeconfig/kubeproxy.kubeconfig
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      automountServiceAccountToken: false
+      securityContext: {}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubemark
+                    operator: In
+                    values:
+                      - kubemark
+      tolerations:
+        - key: key1
+          operator: Equal
+          value: value1
+          effect: NoExecute
+          tolerationSeconds: 36000000000000000
+      priorityClassName: high-priority
+      schedulerName: default-scheduler
+      dnsConfig:
+        options:
+          - name: single-request-reopen
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

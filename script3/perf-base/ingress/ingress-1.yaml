@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    zone: data
+    isExternal: 'true'
+  name: ingress-1
+  namespace: test-ns-6
+  annotations:
+    kubernetes.io/ingress.class: cce
+    kubernetes.io/elb.port: '50001'
+    kubernetes.io/elb.ip: 172.17.215.241
+    kubernetes.io/elb.id: 8a442f20-7fae-4608-b7de-86c069b96846
+spec:
+  rules:
+    - host: ''
+      http:
+        paths:
+          - backend:
+              serviceName: svc-nodeport-1
+              servicePort: 80
+            path: /
+            property:
+              ingress.beta.kubernetes.io/url-match-mode: STARTS_WITH
+
